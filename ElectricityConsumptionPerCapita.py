@@ -87,6 +87,7 @@ def df_geometry():
     gdf.drop(gdf.index[gdf['country'] == 'Tokelau'], inplace=True)
     gdf = gdf.drop(drop_index)
 
+    # These countries are dropped due to non-existing data (elec consumpsion or population)
     #                       Martinique
     #                           Mayotte
     #                    Åland Islands
