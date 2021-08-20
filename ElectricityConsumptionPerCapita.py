@@ -16,11 +16,12 @@ def main():
     pd.set_option('display.width', None)
 
     #Merge data
-    gdf_join_e_pop=merge(df_pop, df_e, gdf_w)[0]
-    gdf_join_e_pop_20=merge(df_pop, df_e, gdf_w)[1]
+    gdf_w_QP = merge(df_pop, df_e, gdf_w)[0]
+    top20_person = merge(df_pop, df_e, gdf_w)[1]
+    top20_contry = merge(df_pop, df_e, gdf_w)[2]
 
     #Plotting
-    plotting(gdf_join_e_pop, gdf_join_e_pop_20)
+    plotting(gdf_w_QP, top20_person, top20_contry)
 
 def df_electiricity():
     ### dataframe of electiricity of households 2018 ###
@@ -163,7 +164,6 @@ def df_population():
     return df_pop
 
 def merge(df_pop,df_e,gdf_w):
-
     gdf_join_pop = gdf_w.merge(df_pop,
                              on='country',
                              how='left')
@@ -180,30 +180,54 @@ def merge(df_pop,df_e,gdf_w):
     gdf_join_e_pop.sort_values(by=['Q/P'], inplace=True,ascending=False)
     gdf_join_e_pop_20 = gdf_join_e_pop.head(20)
 
+    gdf_join_e_pop.sort_values(by=['quantity'], inplace=True, ascending=False)
+    gdf_join_e_pop_20_q = gdf_join_e_pop.head(20)
+
     gdf_join_e_pop.sort_values(by=['quantity'], inplace=True,ascending=False)
 
-    return gdf_join_e_pop, gdf_join_e_pop_20
 
-def plotting(gdf_join_e_pop, gdf_join_e_pop_20):
+
+    return gdf_join_e_pop, gdf_join_e_pop_20, gdf_join_e_pop_20_q
+
+def plotting(gdf_w_QP, top20_person, top20_contry): #(gdf_join_e_pop, gdf_join_e_pop_20, gdf_join_e_pop_20_q):
     fig1, ax1 = plt.subplots()
     fig2, ax2 = plt.subplots()
-    fig1.set_size_inches(8, 6)
+    fig3, ax3 = plt.subplots()
+    fig4, ax4 = plt.subplots()
+    fig1.set_size_inches(8, 5)
     fig2.set_size_inches(8, 6)
+    fig3.set_size_inches(8, 5)
+    fig4.set_size_inches(8, 6)
 
-    ax1.set_title('Electricity Consumption in Households per Capita', fontsize=14)
-    gdf_join_e_pop.plot(column='Q/P',
+    ax1.set_title('Households Electricity Consumption per Capita', fontsize=14)
+    gdf_w_QP.plot(column='Q/P',
                   ax=ax1,
                   legend=True,
                     cmap='gist_rainbow',
                   legend_kwds={'label': "Kilowatt-hours",
                                'orientation': "horizontal"})
 
-    ax2.bar(gdf_join_e_pop_20['country'], gdf_join_e_pop_20['Q/P'], color='blue')
+    ax3.set_title('Households Electricity Consumption per Country', fontsize=14)
+    gdf_w_QP.plot(column='quantity',
+                  ax=ax3,
+                  legend=True,
+                    cmap='gist_rainbow',
+                  legend_kwds={'label': "Kilowatt-hours",
+                               'orientation': "horizontal"})
+
+    ax2.bar(top20_person['country'], top20_person['Q/P'], color='blue')
     ax2.set_xlabel('Country', fontsize=14)
     ax2.set_ylabel('Kilowatt-hours', fontsize=14)
-    ax2.set_xticks(gdf_join_e_pop_20['country']) #This line of code prevents from error. 'set_xticks' has to come before set_'set_xticklabels'
-    ax2.set_xticklabels(labels =gdf_join_e_pop_20['country'].tolist(), rotation = 80 ) #labels take list object
-    ax2.set_title('Top 20 countries in Electiricity consumption in households per capita', fontsize=14)
+    ax2.set_xticks(top20_person['country']) #This line of code prevents from error. 'set_xticks' has to come before set_'set_xticklabels'
+    ax2.set_xticklabels(labels =top20_person['country'].tolist(), rotation = 80 ) #labels take list object
+    ax2.set_title('Top 20 countries in Households Electiricity consumption per capita', fontsize=14)
+
+    ax4.bar(top20_contry['country'], top20_contry['quantity'], color='blue')
+    ax4.set_xlabel('Country', fontsize=14)
+    ax4.set_ylabel('Kilowatt-hours', fontsize=14)
+    ax4.set_xticks(top20_contry['country']) #This line of code prevents from error. 'set_xticks' has to come before set_'set_xticklabels'
+    ax4.set_xticklabels(labels =top20_contry['country'].tolist(), rotation = 80 ) #labels take list object
+    ax4.set_title('Top 20 countries in Households Electiricity consumption', fontsize=14)
 
     plt.tight_layout() #This line helps to show long names of countries(x axis)
     plt.show()
